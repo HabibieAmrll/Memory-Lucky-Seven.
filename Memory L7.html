@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memory - L7</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --stone: #EFE9DF;
+    --stone-deep: #E3DACB;
+    --plum: #3E3238;
+    --plum-soft: #6B5A62;
+    --gold: #BE9A5C;
+    --rose: #D9AFA6;
+    --white: #FBF9F5;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    background:var(--stone);
+    color:var(--plum);
+    font-family:'Work Sans', sans-serif;
+    overflow-x:hidden;
+  }
+
+  h1,h2,h3,.serif{
+    font-family:'Fraunces', serif;
+  }
+
+  /* ---------- Photo placeholder ---------- */
+  .photo-slot{
+    position:relative;
+    background:
+      repeating-linear-gradient(135deg, #DCD3C2, #DCD3C2 10px, #D4C9B5 10px, #D4C9B5 20px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .photo-slot img{
+    width:100%;height:100%;object-fit:cover;
+    position:absolute; inset:0;
+  }
+  .photo-slot .hint{
+    font-family:'Work Sans', sans-serif;
+    font-size:0.7rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:#8a7d68;
+    text-align:center;
+    padding:0 10px;
+    z-index:1;
+    background:rgba(255,255,255,0.55);
+    padding:6px 10px;
+    border-radius:20px;
+  }
+
+  /* ---------- Nav ---------- */
+  nav{
+    position:fixed; top:0; left:0; right:0;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:26px 6vw;
+    z-index:100;
+    mix-blend-mode:difference;
+    color:var(--white);
+  }
+  nav .logo{ font-size:1.15rem; font-weight:500; letter-spacing:0.02em; }
+  nav ul{ list-style:none; display:flex; gap:34px; }
+  nav a{ color:inherit; text-decoration:none; font-size:0.8rem; letter-spacing:0.1em; text-transform:uppercase; }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    min-height:100vh;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    align-items:stretch;
+  }
+  .hero-text{
+    display:flex; flex-direction:column; justify-content:center;
+    padding:0 7vw;
+  }
+  .hero-text .eyebrow{
+    font-size:0.78rem; letter-spacing:0.22em; text-transform:uppercase;
+    color:var(--gold); margin-bottom:20px;
+  }
+  .hero-text h1{
+    font-size:clamp(3rem, 7vw, 6rem);
+    font-weight:500;
+    line-height:0.98;
+    letter-spacing:-0.01em;
+  }
+  .hero-text h1 em{
+    font-style:italic;
+    font-weight:300;
+    color:var(--plum-soft);
+  }
+  .hero-text p{
+    margin-top:28px;
+    max-width:380px;
+    font-size:1rem;
+    line-height:1.7;
+    color:var(--plum-soft);
+  }
+  .hero-photo{ min-height:60vh; }
+
+  /* ---------- Marquee divider ---------- */
+  .marquee{
+    background:var(--plum);
+    color:var(--stone);
+    overflow:hidden;
+    white-space:nowrap;
+    padding:16px 0;
+    border-top:1px solid var(--plum);
+    border-bottom:1px solid var(--plum);
+  }
+  .marquee span{
+    display:inline-block;
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-size:1.3rem;
+    padding:0 2rem;
+    animation:scroll 22s linear infinite;
+  }
+  @keyframes scroll{
+    from{transform:translateX(0);}
+    to{transform:translateX(-50%);}
+  }
+
+  /* ---------- Gallery strip ---------- */
+  .gallery{
+    padding:120px 6vw;
+  }
+  .gallery-head{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    margin-bottom:56px; flex-wrap:wrap; gap:20px;
+  }
+  .gallery-head h2{
+    font-size:clamp(2rem,4vw,3rem);
+    font-weight:500;
+  }
+  .gallery-head p{
+    max-width:320px;
+    color:var(--plum-soft);
+    font-size:0.95rem;
+    line-height:1.6;
+  }
+  .strip{
+    display:flex;
+    gap:22px;
+    overflow-x:auto;
+    padding-bottom:20px;
+    scroll-snap-type:x mandatory;
+  }
+  .strip::-webkit-scrollbar{ height:6px; }
+  .strip::-webkit-scrollbar-thumb{ background:var(--gold); border-radius:10px; }
+
+  .card{
+    flex:0 0 auto;
+    scroll-snap-align:start;
+    width:260px;
+    border-radius:4px;
+    transition:transform 0.4s ease;
+  }
+  .card:nth-child(even){ margin-top:46px; }
+  .card .photo-slot{ height:340px; border-radius:4px; }
+  .card:hover{ transform:translateY(-8px); }
+  .card .cap{
+    margin-top:14px;
+    font-size:0.8rem;
+    color:var(--plum-soft);
+    display:flex; justify-content:space-between;
+  }
+
+  /* ---------- About ---------- */
+  .about{
+    display:grid;
+    grid-template-columns:0.9fr 1.1fr;
+    background:var(--white);
+  }
+  .about .photo-slot{ min-height:640px; }
+  .about-text{
+    padding:110px 7vw;
+    display:flex; flex-direction:column; justify-content:center;
+  }
+  .about-text .eyebrow{
+    font-size:0.78rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold);
+    margin-bottom:18px;
+  }
+  .about-text h2{
+    font-size:clamp(1.8rem,3.4vw,2.6rem);
+    font-weight:500;
+    line-height:1.25;
+    margin-bottom:26px;
+  }
+  .about-text p{
+    color:var(--plum-soft);
+    line-height:1.85;
+    font-size:1rem;
+    max-width:460px;
+  }
+  .stat-row{
+    display:flex; gap:50px; margin-top:44px;
+  }
+  .stat-row div strong{
+    display:block;
+    font-family:'Fraunces', serif;
+    font-size:2rem;
+    font-weight:500;
+  }
+  .stat-row div span{
+    font-size:0.78rem; color:var(--plum-soft); text-transform:uppercase; letter-spacing:0.08em;
+  }
+
+  /* ---------- Moments grid ---------- */
+  .moments{
+    padding:120px 6vw;
+  }
+  .moments h2{
+    font-size:clamp(2rem,4vw,3rem);
+    font-weight:500;
+    margin-bottom:56px;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    grid-auto-rows:180px;
+    gap:16px;
+  }
+  .grid .photo-slot{ border-radius:4px; }
+  .g1{ grid-column:span 2; grid-row:span 2; }
+  .g2{ grid-column:span 2; grid-row:span 1; }
+  .g3{ grid-column:span 1; grid-row:span 1; }
+  .g4{ grid-column:span 1; grid-row:span 1; }
+  .g5{ grid-column:span 2; grid-row:span 1; }
+  .g6{ grid-column:span 2; grid-row:span 2; }
+  .g7{ grid-column:span 2; grid-row:span 1; }
+
+  /* ---------- Footer ---------- */
+  footer{
+    background:var(--plum);
+    color:var(--stone);
+    padding:90px 6vw 40px;
+  }
+  footer h2{
+    font-size:clamp(2.2rem,6vw,4.5rem);
+    font-weight:500;
+    line-height:1;
+    margin-bottom:40px;
+  }
+  footer h2 em{ font-style:italic; font-weight:300; color:var(--rose); }
+  .footer-links{
+    display:flex; gap:40px; flex-wrap:wrap;
+    padding-top:30px;
+    border-top:1px solid rgba(251,249,245,0.2);
+  }
+  .footer-links a{
+    color:var(--stone);
+    text-decoration:none;
+    font-size:0.85rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    position:relative;
+  }
+  .footer-links a::after{
+    content:'';
+    position:absolute; left:0; bottom:-4px;
+    width:0; height:1px; background:var(--gold);
+    transition:width 0.3s ease;
+  }
+  .footer-links a:hover::after{ width:100%; }
+  .footer-bottom{
+    margin-top:60px;
+    font-size:0.75rem;
+    color:rgba(251,249,245,0.5);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
+  }
+
+  /* ---------- Reveal on scroll ---------- */
+  .reveal{
+    opacity:0; transform:translateY(30px);
+    transition:opacity 0.8s ease, transform 0.8s ease;
+  }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:860px){
+    nav{ mix-blend-mode:normal; background:var(--plum); }
+    .hero{ grid-template-columns:1fr; }
+    .hero-photo{ min-height:44vh; order:-1; }
+    .hero-text{ padding:60px 7vw; }
+    .about{ grid-template-columns:1fr; }
+    .about .photo-slot{ min-height:320px; }
+    .about-text{ padding:60px 7vw; }
+    .grid{ grid-template-columns:repeat(2,1fr); grid-auto-rows:150px; }
+    .g1,.g6{ grid-column:span 2; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo serif">Lucky Seven.</div>
+  <ul>
+    <li><a href="#gallery">Galeri</a></li>
+    <li><a href="#about">Tentang</a></li>
+    <li><a href="#moments">Momen</a></li>
+    <li><a href="#contact">Kontak</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-text">
+    <div class="eyebrow">Memory Lucky Seven — 2026</div>
+    <h1>Hai, Ini<br><em>L7.</em></h1>
+    <p>Kumpulan cerita, potret, dan momen kecil yang aku simpan di sini. Selamat datang di halamankita.</p>
+  </div>
+  <div class="hero-photo photo-slot">
+    <img src="photos/hero.jpeg" alt="Foto hero">
+  </div>
+</section>
+
+<div class="marquee">
+  <span>◆ CERITA ◆ FOTO ◆ MOMEN ◆ DIARY ◆ CERITA ◆ FOTO ◆ MOMEN ◆ DIARY ◆ CERITA ◆ FOTO ◆ MOMEN ◆ DIARY ◆</span>
+</div>
+
+<!-- GALLERY STRIP -->
+<section class="gallery" id="gallery">
+  <div class="gallery-head reveal">
+    <h2 class="serif">Galeri Foto</h2>
+    <p>Geser ke samping untuk melihat lebih banyak momen yang sudah kita kumpulkan.</p>
+  </div>
+  <div class="strip">
+    <div class="card reveal">
+      <div class="photo-slot"><img src="photos/gallery1.jpeg" alt="Momen 01"></div>
+      <div class="cap"><span>Jalan Sudirman</span><span>2026</span></div>
+    </div>
+    <div class="card reveal">
+      <div class="photo-slot"><img src="photos/gallery2.jpeg" alt="Momen 02"></div>
+      <div class="cap"><span>Halte Mentos</span><span>2026</span></div>
+    </div>
+    <div class="card reveal">
+      <div class="photo-slot"><img src="photos/gallery3.jpeg" alt="Momen 03"></div>
+      <div class="cap"><span>Soft Archive</span><span>2026</span></div>
+    </div>
+    <div class="card reveal">
+      <div class="photo-slot"><img src="photos/gallery4.jpeg" alt="Momen 04"></div>
+      <div class="cap"><span>Pro Edition</span><span>2026</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <div class="photo-slot reveal">
+    <img src="photos/about.jpeg" alt="Foto tentang aku">
+  </div>
+  <div class="about-text reveal">
+    <div class="eyebrow">Tentang kita</div>
+    <h2 class="serif">Sedikit cerita tentang siapa kita dan apa yang kita suka.</h2>
+    <p>kita suka menyimpan momen kecil — jalan-jalan, nongrkong, obrolan panjang. Halaman ini adalah tempat aku merapikan semuanya jadi satu cerita.</p>
+    <div class="stat-row">
+      <div><strong>20+</strong><span>Foto tersimpan</span></div>
+      <div><strong>1</strong><span>Tahun berbagi</span></div>
+      <div><strong>∞</strong><span>Cerita baru</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- MOMENTS MASONRY -->
+<section class="moments" id="moments">
+  <h2 class="serif reveal">Momen Favorit</h2>
+  <div class="grid">
+    <div class="photo-slot g1 reveal"><img src="photos/moment1.jpeg" alt="Momen"></div>
+    <div class="photo-slot g2 reveal"><img src="photos/moment2.jpeg" alt="Momen"></div>
+    <div class="photo-slot g3 reveal"><img src="photos/moment3.jpeg" alt="Momen"></div>
+    <div class="photo-slot g4 reveal"><img src="photos/moment4.jpeg" alt="Momen"></div>
+    <div class="photo-slot g5 reveal"><img src="photos/moment5.jpeg" alt="Momen"></div>
+    <div class="photo-slot g6 reveal"><img src="photos/moment6.jpeg" alt="Momen"></div>
+    <div class="photo-slot g7 reveal"><img src="photos/moment7.jpeg" alt="Momen"></div>
+  </div>
+</section>
+
+<!-- FOOTER / CONTACT -->
+<footer id="contact">
+  <h2 class="serif">Mampir dan <em>sapa aku.</em></h2>
+  <div class="footer-links">
+    <a href="#">Instagram</a>
+    <a href="#">TikTok</a>
+    <a href="#">Email</a>
+    <a href="#">Spotify</a>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Lucky Seven. Semua momen tersimpan di sini.</span>
+    <span>Dibuat dengan ♥</span>
+  </div>
+</footer>
+
+<script>
+  // Reveal on scroll
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { threshold:0.15 });
+  revealEls.forEach(el=>io.observe(el));
+</script>
+
+</body>
+</html>
